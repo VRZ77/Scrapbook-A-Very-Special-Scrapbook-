@@ -18,19 +18,19 @@ class Paper {
   rotating = false;
 
   init(paper) {
-    paper.addEventListener('pointermove', (e) => {
+    paper.addEventListener('touchmove', (e) => {
       e.preventDefault();
       if(!this.rotating) {
-        this.touchMoveX = e.clientX || e.touches[0].clientX;
-        this.touchMoveY = e.clientY || e.touches[0].clientY;
+        this.touchMoveX = e.touches[0].clientX;
+        this.touchMoveY = e.touches[0].clientY;
         
         this.velX = this.touchMoveX - this.prevTouchX;
         this.velY = this.touchMoveY - this.prevTouchY;
       }
         
-      const dirX = (e.clientX || e.touches[0].clientX) - this.touchStartX;
-      const dirY = (e.clientY || e.touches[0].clientY) - this.touchStartY;
-      const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+      const dirX = e.touches[0].clientX - this.touchStartX;
+      const dirY = e.touches[0].clientY - this.touchStartY;
+      const dirLength = Math.sqrt(dirX*dirX+dirY*dirY);
       const dirNormalizedX = dirX / dirLength;
       const dirNormalizedY = dirY / dirLength;
 
@@ -51,27 +51,31 @@ class Paper {
 
         paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
       }
-    });
+    })
 
-    paper.addEventListener('pointerdown', (e) => {
+    paper.addEventListener('touchstart', (e) => {
       if(this.holdingPaper) return; 
       this.holdingPaper = true;
       
       paper.style.zIndex = highestZ;
       highestZ += 1;
       
-      this.touchStartX = e.clientX || e.touches[0].clientX;
-      this.touchStartY = e.clientY || e.touches[0].clientY;
+      this.touchStartX = e.touches[0].clientX;
+      this.touchStartY = e.touches[0].clientY;
       this.prevTouchX = this.touchStartX;
       this.prevTouchY = this.touchStartY;
-
-      if (e.pointerType === 'touch') {
-        this.rotating = true;
-      }
+    });
+    paper.addEventListener('touchend', () => {
+      this.holdingPaper = false;
+      this.rotating = false;
     });
 
-    paper.addEventListener('pointerup', () => {
-      this.holdingPaper = false;
+    // For two-finger rotation on touch screens
+    paper.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+      this.rotating = true;
+    });
+    paper.addEventListener('gestureend', () => {
       this.rotating = false;
     });
   }
