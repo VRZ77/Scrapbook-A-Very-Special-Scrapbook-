@@ -4,8 +4,6 @@ class Paper {
   holdingPaper = false;
   touchStartX = 0;
   touchStartY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
   prevTouchX = 0;
   prevTouchY = 0;
   velX = 0;
@@ -13,29 +11,25 @@ class Paper {
   rotation = Math.random() * 30 - 15;
   currentPaperX = 0;
   currentPaperY = 0;
-  rotating = false;
 
   init(paper) {
     paper.addEventListener('pointermove', (e) => {
       e.preventDefault();
-      if (!this.rotating) {
+      if (this.holdingPaper) {
         this.touchMoveX = e.clientX || e.touches[0].clientX;
         this.touchMoveY = e.clientY || e.touches[0].clientY;
 
         this.velX = this.touchMoveX - this.prevTouchX;
         this.velY = this.touchMoveY - this.prevTouchY;
-      }
 
-      if (this.holdingPaper) {
-        if (!this.rotating) {
-          this.currentPaperX += this.velX;
-          this.currentPaperY += this.velY;
-        }
-        this.prevTouchX = this.touchMoveX;
-        this.prevTouchY = this.touchMoveY;
+        this.currentPaperX += this.velX;
+        this.currentPaperY += this.velY;
 
         paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
       }
+
+      this.prevTouchX = this.touchMoveX;
+      this.prevTouchY = this.touchMoveY;
     });
 
     paper.addEventListener('pointerdown', (e) => {
@@ -49,15 +43,10 @@ class Paper {
       this.touchStartY = e.clientY || e.touches[0].clientY;
       this.prevTouchX = this.touchStartX;
       this.prevTouchY = this.touchStartY;
-
-      if (e.pointerType === 'touch') {
-        this.rotating = true;
-      }
     });
 
     paper.addEventListener('pointerup', () => {
       this.holdingPaper = false;
-      this.rotating = false;
     });
   }
 }
